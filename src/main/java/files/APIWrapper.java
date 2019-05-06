@@ -25,6 +25,7 @@ public class APIWrapper {
     public static String inc = "?inc=";
 //FOR VARIOUS ARTISTS URL == http://musicbrainz.org/ws/2/release/3f89e2e2-9489-4cfa-a5e2-1e081b144cb6?inc=artist-credits+recordings&fmt=json
     //Βρες Releases με βάση το Type (Album, Compilation)
+
     public static ArrayList<Release> getReleasesByType(String relTitleIn, String arg) throws ParseException, IOException {
         ArrayList<Release> relArr = new ArrayList();
         String url;
@@ -170,7 +171,7 @@ public class APIWrapper {
         return tmp;
     }
 
-        //Βασική κλάση που χρησιμοποιεί την JSOUP βιλβιοθήκη για να παίρνουμε response απο το MusicBrainz δίνοντας το κατάλληλο url
+    //Βασική κλάση που χρησιμοποιεί την JSOUP βιλβιοθήκη για να παίρνουμε response απο το MusicBrainz δίνοντας το κατάλληλο url
     public static JSONObject getResponse(String url) throws ParseException, IOException, org.jsoup.HttpStatusException {
 
         JSONObject response = null;
@@ -182,7 +183,7 @@ public class APIWrapper {
             //Το response σε μορφή JSONObject (απο την βιβλιοθήκη JSONSimple)
             response = (JSONObject) parser.parse(responseText);
             System.out.println(url);
-        } catch (org.jsoup.HttpStatusException e) {     
+        } catch (org.jsoup.HttpStatusException e) {
             e.printStackTrace();
         }
 
@@ -190,11 +191,11 @@ public class APIWrapper {
         return response;
 
     }
-    
+
     //Με βάση ένα JSONObject (response απο το MusicBrainz) χτίζουμε ένα Release->Album ή Release->Compilation
     public static Release makeRelease(JSONObject rel) throws ParseException, IOException {
         Release release = null;
-    //Release
+        //Release
         String id = (String) rel.get("id");             //id
         String title = (String) rel.get("title");       //title
         String status = (String) rel.get("status");     //status
@@ -236,16 +237,17 @@ public class APIWrapper {
             Artist art = new Artist();
             art.setId((String) arti.get("id"));
             art.setName((String) arti.get("name"));
-            
+
             //Αν το secondary-type είναι διάφορο του Compilation 
             if (sec_types == null || !(sec_types.get(0).toString().equals("Compilation"))) {
                 //τότε φτιάξε Album
                 release = new Album(art, id, title, status, language, releaseDate, format, (int) trackCount, type);
-            //Αλλιως αν είναι ίσο του Compilation     
+                //Αλλιως αν είναι ίσο του Compilation     
             } else if (sec_types.get(0).toString().equals("Compilation")) {
-                ArrayList<Artist> artArr = new ArrayList();
-                artArr.add(art);
+                ArrayList<Artist> artArr;
+                //artArr.add(art);
                 type = "Compilation";
+                artArr = getVariousArtistsOfCompilation(id);
                 //τότε φτιάξε Compilation
                 release = new Compilation(artArr, id, title, status, language, releaseDate, format, (int) trackCount, type);
 
@@ -257,13 +259,41 @@ public class APIWrapper {
         return null;
 
     }
+
+    public static ArrayList<Artist> getVariousArtistsOfCompilation(String compiID) throws ParseException, IOException {
+        ArrayList<Artist> artArr = new ArrayList();
+//Xρησιμοποιουμε το "?inc=artist-credits+recordings" για να βρύμε ποιοι artist συμμετείχαν        
+        //στο Compilation
+        String url_compilation = releaseURL + compiID + inc + "artist-credits+recordings" + endURL;
+        JSONObject response = getResponse(url_compilation);
+        JSONArray medias = (JSONArray) response.get("media");
+        JSONObject media = (JSONObject) medias.get(0);
+        JSONArray tracks = (JSONArray) media.get("tracks");
+        for (int i = 0; i < tracks.size(); i++) {
+            JSONObject track = (JSONObject) tracks.get(i);
+            JSONArray artcredit = (JSONArray) track.get("artist-credit");
+            JSONObject artCredit = (JSONObject) artcredit.get(0);
+            JSONObject artist = (JSONObject) artCredit.get("artist");
+
+            String id = (String) artist.get("id");
+            String name = (String) artist.get("name");
+            Artist art = new Artist();
+            art.setId(id);
+            art.setName(name);
+            artArr.add(art);
+        }
+         //Artist tmpart = getArtistByID(artArr.get(0).getId());
+         //artArr.set(0, tmpart);
+        return artArr;
+    }
+
     //Με βάση ένα JSONObject (response απο το MusicBrainz) χτίζουμε ένα Artist->Person ή Artist->Group
     public static Artist makeArtist(JSONObject art) throws ParseException, IOException, NullPointerException {
         Artist arti = null;
 
         ArrayList<String> aliases = new ArrayList();
         ArrayList<String> tags = new ArrayList();
-    //Artist
+        //Artist
         try {
 
             String type = (String) art.get("type");         //type
@@ -312,14 +342,14 @@ public class APIWrapper {
                 // τότε φτιάξε Person
                 arti = new Person(begin, end,
                         (String) art.get("gender"), id, name, country, cities, aliases, tags, type);
-            //Αλλιώς αν το type είναι Group;
+                //Αλλιώς αν το type είναι Group;
             } else if (type.equals("Group")) {
                 //τότε φτιάξε Group 
                 arti = new Group(begin, end, null,
                         id, name, country, cities, aliases, tags, type);
                 //και γέμισε με Members το Group
                 getMembersOfGroup((Group) arti);
-            
+
             } else {
                 return null;
             }
@@ -328,5 +358,22 @@ public class APIWrapper {
             //e.printStackTrace();
         }
         return arti;
+    }
+
+    public static Artist getArtistByID(String id) throws ParseException, IOException {
+        Artist art;
+        String url = artistURL + id + "?" + endURL;
+        JSONObject response = getResponse(url);
+        art = makeArtist(response);
+        return art;
+
+    }
+
+    public static Release getReleaseByID(String id) throws ParseException, IOException {
+          Release rel;
+        String url = artistURL + id + "?" + endURL;
+        JSONObject response = getResponse(url);
+        rel = makeRelease(response);
+        return rel;
     }
 }

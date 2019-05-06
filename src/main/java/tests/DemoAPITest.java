@@ -23,36 +23,36 @@ public class DemoAPITest {
         
         try {
             //Artist////////////////////////////////////////////////////////////////////////
-            System.out.println("//////////////////////////////////////////////////////");
-            System.out.println("Get Artists From Tags");
-            System.out.println("//////////////////////////////////////////////////////");
-            tmpArt = APIWrapper.getArtistsFromTags("fred", "");
-            for (Artist x : tmpArt) {
-                System.out.println(x.toString());
-            }
-            
-            System.out.println("//////////////////////////////////////////////////////");
-            System.out.println("Get Artists From Country");
-            System.out.println("//////////////////////////////////////////////////////");
-            tmpArt = APIWrapper.getArtistsFromCountry("nirvana", "us");
-            for (Artist x : tmpArt) {
-                System.out.println(x.toString());
-            }
+//            System.out.println("//////////////////////////////////////////////////////");
+//            System.out.println("Get Artists From Tags");
+//            System.out.println("//////////////////////////////////////////////////////");
+//            tmpArt = APIWrapper.getArtistsFromTags("fred", "");
+//            for (Artist x : tmpArt) {
+//                System.out.println(x.toString());
+//            }
+//            
+//            System.out.println("//////////////////////////////////////////////////////");
+//            System.out.println("Get Artists From Country");
+//            System.out.println("//////////////////////////////////////////////////////");
+//            tmpArt = APIWrapper.getArtistsFromCountry("nirvana", "us");
+//            for (Artist x : tmpArt) {
+//                System.out.println(x.toString());
+//            }
          
             //Release////////////////////////////////////////////////////////////////////////
-            System.out.println("//////////////////////////////////////////////////////");
-            System.out.println("Get Releases From Status");
-            System.out.println("//////////////////////////////////////////////////////");
-
-            tmpRel = APIWrapper.getReleasesByStatus("Slim", "official");
-            for (Release x : tmpRel) {
-                System.out.println(x.toString());
-            }
-            //Γέμισμα όλων τον στοιχείων Artist ενός Album
-            Album y = (Album) tmpRel.get(1);
-            System.out.println("Before Fill :\n " + y.toString());
-            y.setArt(APIWrapper.fillArtistAlbum(y.getArt()));
-            System.out.println("After Fill :\n " + y.toString());
+//            System.out.println("//////////////////////////////////////////////////////");
+//            System.out.println("Get Releases From Status");
+//            System.out.println("//////////////////////////////////////////////////////");
+//
+//            tmpRel = APIWrapper.getReleasesByStatus("Slim", "official");
+//            for (Release x : tmpRel) {
+//                System.out.println(x.toString());
+//            }
+//            //Γέμισμα όλων τον στοιχείων Artist ενός Album
+//            Album y = (Album) tmpRel.get(1);
+//            System.out.println("Before Fill :\n " + y.toString());
+//            y.setArt(APIWrapper.fillArtistAlbum(y.getArt()));
+//            System.out.println("After Fill :\n " + y.toString());
 
             
             System.out.println("//////////////////////////////////////////////////////");
@@ -63,17 +63,17 @@ public class DemoAPITest {
             for (Release x : tmpRel) {
                 System.out.println(x.toString());
             }
-            
-            //Γέμισμα όλων τον στοιχείων Artist ενός Album
-            y = (Album) tmpRel.get(1);
-            System.out.println("Before Fill :\n " + y.toString());
-            y.setArt(APIWrapper.fillArtistAlbum(y.getArt()));
-            System.out.println("After Fill :\n " + y.toString());
-            
-            /////File////////////
-            FileWrapper.writeReleasesToFile("testRel1", tmpRel);
-            FileWrapper.writeArtistsToFile("testArtist1", tmpArt);
-        
+//            
+//            //Γέμισμα όλων τον στοιχείων Artist ενός Album
+//            y = (Album) tmpRel.get(1);
+//            System.out.println("Before Fill :\n " + y.toString());
+//            y.setArt(APIWrapper.fillArtistAlbum(y.getArt()));
+//            System.out.println("After Fill :\n " + y.toString());
+//            
+//            /////File////////////
+//            FileWrapper.writeReleasesToFile("testRel1", tmpRel);
+//            FileWrapper.writeArtistsToFile("testArtist1", tmpArt);
+//        
         } catch (NullPointerException e) {
             //e.printStackTrace();
         }

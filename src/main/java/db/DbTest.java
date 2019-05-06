@@ -15,7 +15,29 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author herc
+ public abstract MyBaseDAO{
+
+ //Connection settings, common behavior.
+
+}
+* 
+public interface CustomerPersistence{
+//Defines the API
+Customer saveCustomer(Customer customer);
+
+}
+
+public class CustomerPersistenceImpl extends MyBaseDAO implements CustomerPersistence{
+
+//Implements the API
+public Customer saveCustomer(Customer customer){
+
+//Use some methods from MyBaseDao
+this.saveObject(customer)
+
+}
+
+}
  */
 public class DbTest {
 

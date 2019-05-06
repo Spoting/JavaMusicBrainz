@@ -17,6 +17,10 @@ public class Artist {
     private String cities;
 
     public Artist () {}
+    public Artist (String id, String name) {
+        this.id=id;
+        this.name=name;
+    }
     public Artist(String id, String name, String country, String cities, ArrayList<String> aliases, ArrayList<String> tags, String type) {
         this.id = id;
         this.name = name;
