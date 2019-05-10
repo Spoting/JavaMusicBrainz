@@ -16,7 +16,7 @@ import java.util.ArrayList;
 ////Could Use Generic Type
 public interface DBInterface {
     Connection getConnection();
-    void closeConnection();
+    void closeConnection(Connection con);
     
     void insertTagsAliases(Artist art);
     //Could Use Generic Types
