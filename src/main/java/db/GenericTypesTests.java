@@ -25,13 +25,13 @@ public class GenericTypesTests {
    }
 
    public static void main(String args[]) {
-      // Create arrays of Integer, Double and Character
-
-      
+       
       ArrayList<Artist> arrArt = new ArrayList();
       ArrayList<Release> arrRel = new ArrayList();
+      
       Artist art = new Artist();
       Release rel = new Release();
+      
       art.setName("SKATAartist");
       rel.setTitle("SKATArelease");
       
@@ -39,10 +39,10 @@ public class GenericTypesTests {
       arrRel.add(rel);
       
       System.out.println("Array Artists contains:");
-      printArray(arrArt);   // pass an Integer array
+      printArray(arrArt); 
 
       System.out.println("\nArray Releases contains:");
-      printArray(arrRel);   // pass a Double array
+      printArray(arrRel); 
       
    }
 }

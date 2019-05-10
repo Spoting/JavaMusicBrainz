@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  *
  * public interface CustomerPersistence{ //Defines the API Customer
  * saveCustomer(Customer customer);
- *
+ *  
  * }
  *
  * public class CustomerPersistenceImpl extends MyBaseDAO implements
@@ -102,6 +102,8 @@ public class DbTest implements DBInterface {
          *      insertTagsAliases()
          *      for (art.getMembers().size())
          *          Insert into Artists (art.getMembers().get(i), gid)
+         *          |or|
+         *          insertArtist(art.getMembers().get(i))
          */
         return true;
     }
