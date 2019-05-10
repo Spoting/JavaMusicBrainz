@@ -11,7 +11,8 @@ public class Release {
     private String format;
     private String type;
     private int trackCount;
-
+    
+    public Release() {}
     public Release(String id, String title, String status, String language, String releaseDate, String format, int trackCount, String type) {
         this.id = id;
         this.title = title;
