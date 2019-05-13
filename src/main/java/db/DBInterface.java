@@ -7,6 +7,7 @@ package db;
 
 import basics.*;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -15,8 +16,8 @@ import java.util.ArrayList;
  */
 ////Could Use Generic Type
 public interface DBInterface {
-    Connection getConnection();
-    void closeConnection(Connection con);
+    //Connection getConnection();
+    //void closeConnection(Connection con);
     
     void insertTagsAliases(Artist art);
     //Could Use Generic Types
