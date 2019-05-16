@@ -177,7 +177,7 @@ public class APIWrapper {
         JSONObject response = null;
         try {
             //Χρήση JSOUP
-            Document doc = Jsoup.connect(url).userAgent("Mozilla").ignoreContentType(true).timeout(1000).get();
+            Document doc = Jsoup.connect(url).userAgent("Mozilla").ignoreContentType(true).timeout(5000).get();
             String responseText = doc.text();
             JSONParser parser = new JSONParser();
             //Το response σε μορφή JSONObject (απο την βιβλιοθήκη JSONSimple)
@@ -234,13 +234,17 @@ public class APIWrapper {
             JSONArray artCredits = (JSONArray) rel.get("artist-credit");
             JSONObject artCredit = (JSONObject) artCredits.get(0);
             JSONObject arti = (JSONObject) artCredit.get("artist");
+//            JSONObject type = (JSONObject) artCredit.
             Artist art = new Artist();
             art.setId((String) arti.get("id"));
             art.setName((String) arti.get("name"));
-
+//            String arid = (String) arti.get("id");
+//            String arname = (String) arti.get("name");
+//           
             //Αν το secondary-type είναι διάφορο του Compilation 
             if (sec_types == null || !(sec_types.get(0).toString().equals("Compilation"))) {
                 //τότε φτιάξε Album
+                // Artist art = getArtistByID(arid);
                 release = new Album(art, id, title, status, language, releaseDate, format, (int) trackCount, type);
                 //Αλλιως αν είναι ίσο του Compilation     
             } else if (sec_types.get(0).toString().equals("Compilation")) {
@@ -274,16 +278,19 @@ public class APIWrapper {
             JSONArray artcredit = (JSONArray) track.get("artist-credit");
             JSONObject artCredit = (JSONObject) artcredit.get(0);
             JSONObject artist = (JSONObject) artCredit.get("artist");
-
+            
+            String type = (String) artist.get("type");
             String id = (String) artist.get("id");
             String name = (String) artist.get("name");
             Artist art = new Artist();
             art.setId(id);
             art.setName(name);
+            art.setType(type);
+ //           Artist a = getArtistByID(id);
             artArr.add(art);
         }
-         //Artist tmpart = getArtistByID(artArr.get(0).getId());
-         //artArr.set(0, tmpart);
+        //Artist tmpart = getArtistByID(artArr.get(0).getId());
+        //artArr.set(0, tmpart);
         return artArr;
     }
 
@@ -370,7 +377,7 @@ public class APIWrapper {
     }
 
     public static Release getReleaseByID(String id) throws ParseException, IOException {
-          Release rel;
+        Release rel;
         String url = artistURL + id + "?" + endURL;
         JSONObject response = getResponse(url);
         rel = makeRelease(response);

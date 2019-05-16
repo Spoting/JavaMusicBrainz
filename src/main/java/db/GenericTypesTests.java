@@ -26,24 +26,24 @@ public class GenericTypesTests {
 
    public static void main(String args[]) {
        
-      ArrayList<Artist> arrArt = new ArrayList();
-      ArrayList<Release> arrRel = new ArrayList();
-      
-      Artist art = new Artist();
-      Release rel = new Release();
-      
-      art.setName("SKATAartist");
-      rel.setTitle("SKATArelease");
-      
-      arrArt.add(art);
-      arrRel.add(rel);
-      
-      System.out.println("Array Artists contains:");
-      printArray(arrArt); 
-
-      System.out.println("\nArray Releases contains:");
-      printArray(arrRel); 
-      
+//      ArrayList<Artist> arrArt = new ArrayList();
+//      ArrayList<Release> arrRel = new ArrayList();
+//      
+//      Artist art = new Artist();
+//      Release rel = new Release();
+//      
+//      art.setName("SKATAartist");
+//      rel.setTitle("SKATArelease");
+//      
+//      arrArt.add(art);
+//      arrRel.add(rel);
+//      
+//      System.out.println("Array Artists contains:");
+//      printArray(arrArt); 
+//
+//      System.out.println("\nArray Releases contains:");
+//      printArray(arrRel); 
+//      
    }
 }
 
