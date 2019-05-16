@@ -1,6 +1,8 @@
 package basics;
 
-public class Release {
+import java.io.Serializable;
+
+public abstract class Release implements Serializable {
 
     // Abstract Release->Album,Compilation
     private String id;
@@ -12,7 +14,7 @@ public class Release {
     private String type;
     private int trackCount;
     
-    public Release() {}
+    //public Release() {}
     public Release(String id, String title, String status, String language, String releaseDate, String format, int trackCount, String type) {
         this.id = id;
         this.title = title;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 
 
-public class Artist {
+public class Artist implements Serializable {
     //Artist->Person,Group
 
     private String id;

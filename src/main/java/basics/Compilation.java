@@ -1,8 +1,9 @@
 package basics;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Compilation extends Release{
+public class Compilation extends Release { //implements Serializable
 	private ArrayList<Artist> artists;
 	//private Release release;
 

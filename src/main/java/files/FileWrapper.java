@@ -7,40 +7,74 @@ package files;
 
 import basics.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 
-//Να διαβάζει απο αρχεία θα υλοποιηθεί σε επόμενα στάδια
 public class FileWrapper {
-    
-    public static void writeArtistsToFile(String filename, ArrayList<Artist> artArr) throws ClassNotFoundException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    ///////// Serializable Read/Write to file
 
-        mapper.writerWithDefaultPrettyPrinter().writeValue(new File("target/" + filename + ".json"), artArr);
-        System.out.println("Json Artists written to the file " + filename + ".json");
+    public static void writeFileArtist(String filename, ArrayList<Artist> tmpArr) throws IOException, ParseException {
+        try {
+            FileOutputStream fileOut = new FileOutputStream(filename + ".ser");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(tmpArr);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void writeReleasesToFile(String filename, ArrayList<Release> relArr) throws FileNotFoundException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    public static ArrayList<Artist> readArtistsFromFile(String filename) {
+        ArrayList<Artist> tmpArt = new ArrayList();
+        try {
+            FileInputStream fileIn = new FileInputStream(filename + ".ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            tmpArt = (ArrayList<Artist>) in.readObject();
+            in.close();
+            fileIn.close();
+            for (Artist x : tmpArt) {
+                System.out.println("From FILE : " + x.toString());
 
-        mapper.writerWithDefaultPrettyPrinter().writeValue(new File("target/" + filename + ".json"), relArr);
-        System.out.println("Json Artists written to the file " + filename + ".json");
+            }
+        } catch (Exception e) {
 
+        }
+        return tmpArt;
     }
 
-    public static ArrayList<Artist> readArtistsFromFile(String filename) throws FileNotFoundException, IOException, ClassNotFoundException {
-        return null;
+    public static void writeFileRelease(String filename, ArrayList<Release> tmpRel) throws IOException, ParseException {
+        try {
+            FileOutputStream fileOut = new FileOutputStream(filename + ".ser");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(tmpRel);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static ArrayList<Release> readReleasesFromFile(String filename) {
-        return null;
+           ArrayList<Release> tmpRel = new ArrayList();
+        try {
+            FileInputStream fileIn = new FileInputStream(filename + ".ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            tmpRel = (ArrayList<Release>) in.readObject();
+            in.close();
+            fileIn.close();
+            for (Release r : tmpRel) {
+                System.out.println("From FILE : " + r.toString());
+
+            }
+        } catch (Exception e) {
+
+        }
+        return tmpRel;
     }
 }
-//Πηγές
-//https://java2blog.com/jackson-example-read-and-write-json/
-//https://www.makeinjava.com/convert-array-objects-json-jackson-objectmapper/
-//http://www.davismol.net/2015/03/05/jackson-json-deserialize-a-list-of-objects-of-subclasses-of-an-abstract-class/

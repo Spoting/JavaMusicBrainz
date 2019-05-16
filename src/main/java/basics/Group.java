@@ -1,5 +1,6 @@
 package basics;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Group extends Artist {
