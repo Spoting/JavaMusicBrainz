@@ -19,7 +19,7 @@ public interface DBInterface {
     //Connection getConnection();
     //void closeConnection(Connection con);
     
-    void insertTagsAliases(Artist art);
+    //void insertTagsAliases(Artist art);
     //Could Use Generic Types
     boolean insertArtist(Artist art);
     boolean insertRelease(Release rel);
@@ -27,6 +27,10 @@ public interface DBInterface {
     int insertMassArtists(ArrayList<Artist> arrArt);
     int insertMassReleases(ArrayList<Release> arrRel);
     
-    ArrayList<Artist> queryArtist();
-    ArrayList<Release> queryRelease();
+    ArrayList<Artist> queryArtistByTag(String tag);
+    ArrayList<Artist> queryArtistByAlias(String alias);
+    ArrayList<Artist> queryArtistByCountry(String country);
+    
+    ArrayList<Release> queryReleaseByStatus(String arg);
+    ArrayList<Release> queryReleaseByFormat(String arg);
 }

@@ -50,141 +50,422 @@ public class DbTest implements DBInterface {
     //static String insert = "INSERT INTO ";
     private static Connection conn;
 
-    public static void main(String args[]) throws SQLException, ParseException, IOException {
-        DbTest db = new DbTest();
+    public static void main(String args[]) throws SQLException, ParseException, IOException, NullPointerException {
+        DBInterface db = new DbTest();
         ArrayList<Release> tmpRel;
         ArrayList<Artist> tmpArt;
-///////////Get Artist From API
+/////////////Get Artist From API
+//        System.out.println("//////////////////////////////////////////////////////");
+//        System.out.println("Get Artist From Tags");
+//        System.out.println("//////////////////////////////////////////////////////");
+//
+//        tmpArt = APIWrapper.getArtistsFromTags("fred", "");
+//        ////Insert Artist to DB
+//        conn = getConn();
+//        System.out.println("Number of Successfull Inserts : "
+//                + db.insertMassArtists(tmpArt));
+//
+//        closeConn(conn);
+/////////////Get Releases From API
+//        System.out.println("//////////////////////////////////////////////////////");
+//        System.out.println("Get Releases From Status");
+//        System.out.println("//////////////////////////////////////////////////////");
+//
+//        tmpRel = APIWrapper.getReleasesByStatus("We will rock you", "official");
+//        ////Insert Release to DB
+//        conn = getConn();
+//        System.out.println("Count of Releases "
+//                + db.insertMassReleases(tmpRel));
+//        closeConn(conn);
+//////////QueryArtist
+//        System.out.println("//////////////////////////////////////////////////////");
+//        System.out.println("Queries For Artist");
+//        System.out.println("//////////////////////////////////////////////////////");
+//        conn = getConn();
+//
+//        System.out.println("/////Query By Country/////");
+//        tmpArt = db.queryArtistByCountry("US");
+//        for (Artist art : tmpArt) {
+//            System.out.println(art.toString());
+//        }
+//
+//        System.out.println("/////Query By Tag/////");
+//        tmpArt = db.queryArtistByTag("american");
+//        for (Artist art : tmpArt) {
+//            System.out.println(art.toString());
+//        }
+//
+//        System.out.println("/////Query By Alias/////");
+//        tmpArt = db.queryArtistByAlias("Fred");
+//        for (Artist art : tmpArt) {
+//            System.out.println(art.toString());
+//        }
+//
+//        closeConn(conn);
+//////////QueryRelease
         System.out.println("//////////////////////////////////////////////////////");
-        System.out.println("Get Artist From Tags");
+        System.out.println("Queries For Release");
         System.out.println("//////////////////////////////////////////////////////");
-
-        tmpArt = APIWrapper.getArtistsFromTags("fred", "");
-        //Insert Artist to DB
         conn = getConn();
-        System.out.println("Number of Successfull Inserts : "
-                + db.insertMassArtists(tmpArt));
 
-        closeConn(conn);
- /////////Get Releases From API
-        System.out.println("//////////////////////////////////////////////////////");
-        System.out.println("Get Releases From Status");
-        System.out.println("//////////////////////////////////////////////////////");
+        System.out.println("/////Query By Status/////");
+        tmpRel = db.queryReleaseByStatus("Official");
+        System.out.println();
+        for (Release rel : tmpRel) {
+            System.out.println(rel.toString());
+        }
 
-        tmpRel = APIWrapper.getReleasesByStatus("We will rock you", "official");
-        ////Insert Release to DB
-        conn = getConn();
-        System.out.println("Count of Releases "
-                + db.insertMassReleases(tmpRel));
+        System.out.println("/////Query By Format/////");
+        tmpRel = db.queryReleaseByFormat("CD");
+        System.out.println();
+        for (Release rel : tmpRel) {
+            System.out.println(rel.toString());
+        }
         closeConn(conn);
 
     }
 
-    private static Connection getConn() {
-        Connection connection = null;
-        // con = getConn();
-        try {
-//load database driver
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger("Driver not found");
-            ex.printStackTrace();
-        }
-        try {
-            connection = DriverManager.getConnection(
-                    "jdbc:oracle:thin:@oracle12c.hua.gr:1521:orcl", "it21502",
-                    "it21502");
-            connection.setAutoCommit(false);// Auto-commit off
-            //Statement st = connection.createStatement();
-            //st.execute("ALTER SESSION SET NLS_DATE_FORMAT='DD-MM-YYYY'");
-        } catch (SQLException ex) {
-            Logger.getLogger("Server not found");
-            ex.printStackTrace();
-        }
-        System.out.println("Connection Open");
-        return connection;
-    }
+//Query Artist with Country argument
+    @Override
+    public ArrayList<Artist> queryArtistByCountry(String country) {
+        ArrayList<Artist> artArr = new ArrayList();
 
-    private static void closeConn(Connection con) {
+        String tableName = "artist";
+        PreparedStatement pstmt = null;
+
+        String sql = "SELECT * FROM " + tableName + "  WHERE country=?";
         try {
-            con.commit();
-            con.close();
-            System.out.println("Connection Closed");
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, country);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                artArr.add(makeArtist(rs));
+            }
+
         } catch (SQLException ex) {
             Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Connection Error");
-
         }
+        return artArr;
+    }
+//Query Artist with Tag argument
+
+    @Override
+    public ArrayList<Artist> queryArtistByTag(String tag) {
+
+        ArrayList<Artist> artArr = new ArrayList();
+        PreparedStatement pstmt = null;
+        String sql = "SELECT * FROM artist a "
+                + "JOIN art_tag t "
+                + "ON t.arid = a.arid "
+                + "WHERE t.artag LIKE ?";
+        try {
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, "%" + tag + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                artArr.add(makeArtist(rs));
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return artArr;
+    }
+//Query Artist with Alias argument
+
+    @Override
+    public ArrayList<Artist> queryArtistByAlias(String alias) {
+
+        ArrayList<Artist> artArr = new ArrayList();
+        PreparedStatement pstmt = null;
+        String sql = "SELECT * FROM artist a "
+                + "JOIN art_alias t "
+                + "ON t.arid = a.arid "
+                + "WHERE t.aralias LIKE ?";
+        try {
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, "%" + alias + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                artArr.add(makeArtist(rs));
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return artArr;
+    }
+
+//get Tags of Artist
+    private ArrayList<String> queryTags(String arid) {
+
+        ArrayList<String> tagArr = new ArrayList();
+        String tableName = "art_tag";
+        PreparedStatement pstmt = null;
+
+        String sql = "SELECT * FROM " + tableName + "  WHERE arid=?";
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, arid);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                tagArr.add(rs.getString(2));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return tagArr;
+    }
+//get Aliases of Artist    
+
+    private ArrayList<String> queryAliases(String arid) {
+        ArrayList<String> aliasArr = new ArrayList();
+
+        String tableName = "art_alias";
+        PreparedStatement pstmt = null;
+
+        String sql = "SELECT * FROM " + tableName + "  WHERE arid=?";
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, arid);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                aliasArr.add(rs.getString(2));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return aliasArr;
+    }
+
+//get Query Members of Group
+    private ArrayList<Person> queryGroupMembers(String arid) {
+        ArrayList<Person> membArr = new ArrayList();
+
+        String tableName = "artist";
+        PreparedStatement pstmt = null;
+
+        String sql = "SELECT * FROM " + tableName
+                + " WHERE gid=? ";
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, arid);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                membArr.add((Person) makeArtist(rs));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return membArr;
+
     }
 
     @Override
-    public void insertTagsAliases(Artist art) {
-
-        String arid = art.getId();
-
-        ArrayList<String> aliases = art.getAliases();
-        ArrayList<String> tags = art.getTags();
-
-        //Connection conn = getConn();
-        String tableName = "";
-        String sql = "";
+    public ArrayList<Release> queryReleaseByStatus(String arg) {
+        ArrayList<Release> relArr = new ArrayList();
+        //String tableName = "album";
         PreparedStatement pstmt = null;
 
+        String sql = "SELECT * FROM album WHERE status=? ";
         try {
-
-            tableName = "art_alias";
-            sql = "insert into " + tableName + " values (?,?)";
             pstmt = conn.prepareStatement(sql);
-            for (String x : aliases) {
-                //String query1 = "INSERT INTO art_alias VALUES ('" + arid + "', '" + x + "')";
-                try {
-                    pstmt.setString(1, arid);
-                    pstmt.setString(2, x);
-
-                    pstmt.executeUpdate();
-                } catch (SQLException ex) {
-                    // Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            pstmt.setString(1, arg);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                relArr.add(makeRelease(rs));
             }
 
-            tableName = "art_tag";
-            sql = "insert into " + tableName + " values (?,?)";
-            pstmt = conn.prepareStatement(sql);
-            for (String x : tags) {
-                //String query2 = "INSERT INTO art_tag VALUES ('" + arid + "', '" + x + "')";
-                try {
-                    pstmt.setString(1, arid);
-                    pstmt.setString(2, x);
-
-                    pstmt.executeUpdate();
-
-                } catch (SQLException ex) {
-                    //Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-
-            pstmt.close();
-
-        } catch (Exception ex) {
-            // Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Error Inserting Aliases&Tags");
-
-        } finally {
-            //closeConn(conn);
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //System.out.println("Aliases&Tags In DB for Artist with ID: " + arid);
+        return relArr;
     }
 
+    @Override
+    public ArrayList<Release> queryReleaseByFormat(String arg) {
+        ArrayList<Release> relArr = new ArrayList();
+        //String tableName = "album";
+        PreparedStatement pstmt = null;
+
+        String sql = "SELECT * FROM album WHERE format=? ";
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, arg);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                relArr.add(makeRelease(rs));
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return relArr;
+    }
+
+    private ArrayList<Artist> findArtistsOfRelease(String albid) {
+        ArrayList<Artist> artArr = new ArrayList();
+        PreparedStatement pstmt = null;
+
+        String sql = "SELECT a.arid, a.arname, a.artype FROM release r "
+                + "JOIN artist a ON a.arid = r.arid "
+                + "JOIN album b ON b.albid = r.albid "
+                + "WHERE b.albid = ?";
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, albid);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                artArr.add(makeArtist(rs));
+            }
+            //relArr.add(makeRelease(rs));
+
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return artArr;
+    }
+
+    //Build Release From ResultSet of JDBC
+    private Release makeRelease(ResultSet rs) throws SQLException {
+        if (rs.getString("reltype").equals("Album")) {
+            Album a = new Album();
+
+            a.setId(rs.getString(1));
+            a.setType(rs.getString(2));
+            a.setTitle(rs.getString(3));
+            a.setStatus(rs.getString(4));
+            a.setLanguage(rs.getString(5));
+            a.setReleaseDate(rs.getString(6));
+            a.setFormat(rs.getString(7));
+            a.setTrackCount(rs.getInt(8));
+
+            ArrayList artsOfRelease = findArtistsOfRelease(a.getId());
+            if (artsOfRelease.size() == 1) {
+                a.setArt((Artist) artsOfRelease.get(0));
+            } else {
+                System.out.println("Error in ControlFlow");
+            }
+
+            return a;
+        } else if (rs.getString("reltype").equals("Compilation")) {
+            Compilation c = new Compilation();
+
+            c.setId(rs.getString(1));
+            c.setType(rs.getString(2));
+            c.setTitle(rs.getString(3));
+            c.setStatus(rs.getString(4));
+            c.setLanguage(rs.getString(5));
+            c.setReleaseDate(rs.getString(6));
+            c.setFormat(rs.getString(7));
+            c.setTrackCount(rs.getInt(8));
+
+            ArrayList artsOfRelease = findArtistsOfRelease(c.getId());
+            c.setArtists(artsOfRelease);
+            return c;
+        }
+        return null;
+    }
+
+    //Build Artist From ResultSet of JDBC
+    private Artist makeArtist(ResultSet rs) throws SQLException {
+        //Artist art = null;
+
+        if (rs.getString("artype").equals("Person") || rs.getString("artype").equals("member of band")) {
+            Person p = new Person();
+
+            p.setId(rs.getString(1));
+            p.setName(rs.getString(2));
+            p.setCountry(rs.getString(3));
+            p.setCities(rs.getString(4));
+            p.setBirthDate(rs.getString(5));
+            p.setDeathDate(rs.getString(6));
+            p.setType(rs.getString(7));
+            p.setGender(rs.getString(8));
+
+            p.setAliases(queryAliases(p.getId()));
+            p.setTags(queryTags(p.getId()));
+
+            return p;
+            // artArr.add(p);
+        } else if (rs.getString("artype").equals("Group")) {
+            Group g = new Group();
+
+            g.setId(rs.getString(1));
+            g.setName(rs.getString(2));
+            g.setCountry(rs.getString(3));
+            g.setCities(rs.getString(4));
+            g.setBeginDate(rs.getString(5));
+            g.setEndDate(rs.getString(6));
+            g.setType(rs.getString(7));
+            //p.setGender(rs.getString(8));
+
+            g.setAliases(queryAliases(g.getId()));
+            g.setTags(queryTags(g.getId()));
+
+            g.setMembers(queryGroupMembers(g.getId()));
+
+            return g;
+            //artArr.add(g);
+        } else if (rs.getString("artype").equals("unknown")) {
+            Artist a = new Artist();
+
+            a.setId(rs.getString("arid"));
+            a.setName(rs.getString("arname"));
+            a.setType("artype");
+
+            return a;
+        }
+
+        return null;
+    }
+
+////////////////Inserts//////////////////////////////////////////////////////////////////////////
+    //Insert Many Artists
+    @Override
+    public int insertMassArtists(ArrayList<Artist> arrArt) {
+        int count = 0;
+
+        for (Artist art : arrArt) {
+            if (insertArtist(art) == true) {
+                count++;
+            }
+        }
+        return count;
+    }
+//Insert Many Releases
+
+    @Override
+    public int insertMassReleases(ArrayList<Release> arrRel) {
+        int count = 0;
+
+        for (Release rel : arrRel) {
+            if (insertRelease(rel) == true) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+//InsertArtist
     @Override
     public boolean insertArtist(Artist art) {
         //Connection conn = getConn();
 
         PreparedStatement pstmt;
         String tableName = "artist";
-
+        /*Αν ο Artist δεν εχει εξειδικευτει σε (Person, Group), δλδ στο Artist
+            δεν εχουμε ανακτήσει πληροφοριες εκτος του id,name*/
         if (art.getClass().toString().equals("class basics.Artist")) {
             try {
                 art.setType("unknown");
+                /* Το βαζουμε unknown για να ξερουμε οτι 
+                αυτο το Artist χρειαζεται γεμισμα απο το API, διοτι άν το γεμιζαμε 
+                τωρα θα έχουμε HTTPerror 503 επειδη κανουμε πολλες κλήσεις στο server*/
                 String sql = "insert into " + tableName + " (arid, arname, artype) values (?,?,?)";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, art.getId());
@@ -196,21 +477,19 @@ public class DbTest implements DBInterface {
             } catch (SQLException ex) {
                 // Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("Error Inserting Artist " + art.getId());
-                return false;
+                return false; // Αν υπαρχει Error, γυρνα false
             } finally {
                 //closeConn(conn);
 
             }
             System.out.println("Success: Artist " + art.getId());
-            return true;
+            return true; // Αν επιτυχει, γυρνα True
         }
 
         if (art.getClass().toString().equals("class basics.Person")) { //|| art.getType().equals("unknown")
             try {
                 Person p = (Person) art;
 
-                //System.out.println("sdqwqd," + p.getBirthDate());
-                //tableName = "artist";
                 String sql = "insert into " + tableName + " values (?,?,?,?,?,?,?,?,?)";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, p.getId());
@@ -300,6 +579,7 @@ public class DbTest implements DBInterface {
         return false;
     }
 
+//InsertRelease
     @Override
     public boolean insertRelease(Release rel) {
 
@@ -311,8 +591,6 @@ public class DbTest implements DBInterface {
             try {
                 Album a = (Album) rel;
 
-                //System.out.println("sdqwqd," + p.getBirthDate());
-                //tableName = "artist";
                 String sql = "insert into " + tableName + " values (?,?,?,?,?,?,?,?)";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, a.getId());
@@ -354,8 +632,6 @@ public class DbTest implements DBInterface {
             try {
                 Compilation comp = (Compilation) rel;
 
-                //System.out.println("sdqwqd," + p.getBirthDate());
-                //tableName = "artist";
                 String sql = "insert into " + tableName + " values (?,?,?,?,?,?,?,?)";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, comp.getId());
@@ -399,38 +675,101 @@ public class DbTest implements DBInterface {
         return false;
     }
 
-    @Override
-    public int insertMassArtists(ArrayList<Artist> arrArt) {
-        int count = 0;
+    //InsertTags+Aliases of Artist
+    private void insertTagsAliases(Artist art) {
 
-        for (Artist art : arrArt) {
-            if (insertArtist(art) == true) {
-                count++;
+        String arid = art.getId();
+
+        ArrayList<String> aliases = art.getAliases();
+        ArrayList<String> tags = art.getTags();
+
+        //Connection conn = getConn();
+        String tableName = "";
+        String sql = "";
+        PreparedStatement pstmt = null;
+
+        try {
+
+            tableName = "art_alias";
+            sql = "insert into " + tableName + " values (?,?)";
+            pstmt = conn.prepareStatement(sql);
+            for (String x : aliases) {
+                //String query1 = "INSERT INTO art_alias VALUES ('" + arid + "', '" + x + "')";
+                try {
+                    pstmt.setString(1, arid);
+                    pstmt.setString(2, x);
+
+                    pstmt.executeUpdate();
+                } catch (SQLException ex) {
+                    // Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-        }
-        return count;
-    }
 
-    @Override
-    public int insertMassReleases(ArrayList<Release> arrRel) {
-        int count = 0;
+            tableName = "art_tag";
+            sql = "insert into " + tableName + " values (?,?)";
+            pstmt = conn.prepareStatement(sql);
+            for (String x : tags) {
+                //String query2 = "INSERT INTO art_tag VALUES ('" + arid + "', '" + x + "')";
+                try {
+                    pstmt.setString(1, arid);
+                    pstmt.setString(2, x);
 
-        for (Release rel : arrRel) {
-            if (insertRelease(rel) == true) {
-                count++;
+                    pstmt.executeUpdate();
+
+                } catch (SQLException ex) {
+                    //Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+
+            pstmt.close();
+
+        } catch (Exception ex) {
+            // Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Error Inserting Aliases&Tags");
+
+        } finally {
+            //closeConn(conn);
         }
-        return count;
+        //System.out.println("Aliases&Tags In DB for Artist with ID: " + arid);
     }
 
-    @Override
-    public ArrayList<Artist> queryArtist() {
-        return null;
+////////////////DATABASE CONNECTION//////////////////////////////////////////////////////////////////////////     
+    //Open DB Connection
+    private static Connection getConn() {
+        Connection connection = null;
+        // con = getConn();
+        try {
+            //load database driver
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger("Driver not found");
+            ex.printStackTrace();
+        }
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:oracle:thin:@oracle12c.hua.gr:1521:orcl", "it21502",
+                    "it21502");
+            connection.setAutoCommit(false);// Auto-commit off
+
+            //st.execute("ALTER SESSION SET NLS_DATE_FORMAT='DD-MM-YYYY'");
+        } catch (SQLException ex) {
+            Logger.getLogger("Server not found");
+            ex.printStackTrace();
+        }
+        System.out.println("Connection Open");
+        return connection;
     }
 
-    @Override
-    public ArrayList<Release> queryRelease() {
-        return null;
-    }
+    //Close DB Connection
+    private static void closeConn(Connection con) {
+        try {
+            con.commit(); //commit DB changes
+            con.close();
+            System.out.println("Connection Closed");
+        } catch (SQLException ex) {
+            Logger.getLogger(DbTest.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Connection Error");
 
+        }
+    }
 }

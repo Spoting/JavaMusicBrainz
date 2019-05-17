@@ -5,7 +5,10 @@ import java.io.Serializable;
 public class Album extends Release  { //implements Serializable
 
     private Artist art;
-
+    
+    public Album() {
+    
+    }
     public Album(Artist art, String id, String title, String status, String language, String releaseDate, String format,
             int trackCount, String type) {
         super(id, title, status, language, releaseDate, format, trackCount, type);
