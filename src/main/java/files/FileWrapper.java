@@ -17,9 +17,11 @@ import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+///////// Serializable Read/Write to file
+    // Με βάση το Walkthrough της εργασίας
 public class FileWrapper {
-    ///////// Serializable Read/Write to file
-
+    
+///For Artists    
     public static void writeFileArtist(String filename, ArrayList<Artist> tmpArr) throws IOException, ParseException {
         try {
             FileOutputStream fileOut = new FileOutputStream(filename + ".ser");
@@ -49,6 +51,7 @@ public class FileWrapper {
         return tmpArt;
     }
 
+///For Releases    
     public static void writeFileRelease(String filename, ArrayList<Release> tmpRel) throws IOException, ParseException {
         try {
             FileOutputStream fileOut = new FileOutputStream(filename + ".ser");
