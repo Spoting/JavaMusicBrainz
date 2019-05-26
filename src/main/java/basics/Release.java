@@ -1,6 +1,8 @@
 package basics;
 
-public class Release {
+import java.io.Serializable;
+
+public abstract class Release implements Serializable {
 
     // Abstract Release->Album,Compilation
     private String id;
